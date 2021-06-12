@@ -9,7 +9,9 @@ module.exports = app => {
   app.use(passport.initialize())
   app.use(passport.session())
 
-  passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
+  passport.use(new LocalStrategy({
+    usernameField: 'email'
+  }, async (email, password, done) => {
     try {
       const user = await User.findOne({ where: { email } })
 

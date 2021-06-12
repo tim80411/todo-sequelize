@@ -13,7 +13,8 @@ router.get('/login', (req, res) => {
 
 router.post('/login', passport.authenticate('local', {
   failureRedirect: '/users/login',
-  successRedirect: '/'
+  successRedirect: '/',
+  failureFlash: true
 }))
 
 router.get('/register', (req, res) => {
@@ -22,11 +23,33 @@ router.get('/register', (req, res) => {
 
 router.post('/register', async (req, res) => {
   const { name, email, password, confirmPassword } = req.body
+  const error = []
+
+  if (!name || !email || !password || !confirmPassword) {
+    error.push('每個欄位都是必填。')
+  }
+
+  if (password !== confirmPassword) {
+    error.push('密碼與確認密碼不符')
+  }
+
+  if (error.length) {
+    return res.render('register', {
+      error,
+      name,
+      email,
+      password,
+      confirmPassword
+    })
+  }
+
   try {
     const user = await User.findOne({ where: { email } })
     if (user) {
-      console.log('User already exist')
+      error.push('此信箱已被註冊')
+
       return res.render('register', {
+        error,
         name,
         email,
         password,
@@ -47,6 +70,7 @@ router.post('/register', async (req, res) => {
 
 router.get('/logout', (req, res) => {
   req.logout()
+  req.flash('success', '你已經成功登出')
   res.redirect('/users/login')
 })
 
