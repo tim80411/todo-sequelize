@@ -47,10 +47,31 @@ app.get('/users/register', (req, res) => {
   res.render('register')
 })
 
-app.post('/users/register', (req, res) => {
+app.post('/users/register', async (req, res) => {
   const { name, email, password, confirmPassword } = req.body
-  User.create({ name, email, password })
-    .then(user => res.redirect('/'))
+  try {
+    const user = await User.findOne({ where: { email } })
+    if (user) {
+      console.log('User already exist')
+      return res.render('register', {
+        name,
+        email,
+        password,
+        confirmPassword
+      })
+    } else {
+      const salt = await bcrypt.genSalt(10)
+      const hash = await bcrypt.hash(password, salt)
+
+      const userId = await User.create({ name, email, password: hash })
+
+      console.log(userId)
+
+      return res.redirect('/users/login')
+    }
+  } catch (error) {
+    console.log('register failed.')
+  }
 })
 
 app.get('/users/logout', (req, res) => {
