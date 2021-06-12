@@ -70,4 +70,23 @@ router.put('/:id', async (req, res) => {
     res.redirect('/')
   }
 })
+
+router.delete('/:id', async (req, res) => {
+  const userId = req.user._id
+  const id = req.params.id
+
+  try {
+    const todo = await Todo.findOne({ id, UserId: userId })
+
+    await todo.destroy()
+
+    return res.redirect('/')
+
+  } catch (error) {
+    req.flash('error', '資料庫載入失敗，請稍後再試')
+
+    res.redirect('/')
+  }
+})
+
 module.exports = router
