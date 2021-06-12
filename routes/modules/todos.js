@@ -28,11 +28,22 @@ router.post('/', async (req, res) => {
 
 })
 
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   const id = req.params.id
-  return Todo.findByPk(id)
-    .then(todo => res.render('detail', { todo: todo.toJSON() }))
-    .catch(err => console.log(err))
+  const userId = req.user.id
+
+  try {
+    let todo = await Todo.findOne({
+      where: { id, UserId: userId }
+    })
+    todo = todo.toJSON()
+
+    res.render('detail', { todo })
+  } catch (error) {
+    req.flash('error', '資料庫載入失敗，請稍後再試')
+
+    res.redirect('/')
+  }
 })
 
 router.get('/:id/edit', async (req, res) => {
