@@ -39,7 +39,9 @@ router.get('/:id/edit', async (req, res) => {
   const userId = req.user.id
   const id = req.params.id
   try {
-    let todo = await Todo.findOne({ id, UserId: userId })
+    let todo = await Todo.findOne({
+      where: { id, UserId: userId }
+    })
     todo = todo.toJSON()
 
     res.render('edit', { todo })
@@ -51,12 +53,15 @@ router.get('/:id/edit', async (req, res) => {
 })
 
 router.put('/:id', async (req, res) => {
-  const userId = req.user._id
+  const userId = req.user.id
   const id = req.params.id
   const { name, isDone } = req.body
 
   try {
-    const todo = await Todo.findOne({ id, UserId: userId })
+    const todo = await Todo.findOne({
+      where: { id, UserId: userId }
+    })
+
     todo.name = name
     todo.isDone = isDone === 'on'
 
@@ -72,11 +77,13 @@ router.put('/:id', async (req, res) => {
 })
 
 router.delete('/:id', async (req, res) => {
-  const userId = req.user._id
+  const userId = req.user.id
   const id = req.params.id
 
   try {
-    const todo = await Todo.findOne({ id, UserId: userId })
+    const todo = await Todo.findOne({
+      where: { id, UserId: userId }
+    })
 
     await todo.destroy()
 
